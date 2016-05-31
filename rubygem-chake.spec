@@ -2,7 +2,7 @@
 
 Name: rubygem-%{gem_name}
 Version: 0.13
-Release: 4%{?dist}
+Release: 5%{?dist}
 Summary: serverless configuration management tool for chef
 Group: Development/Languages
 License: MIT
@@ -95,6 +95,9 @@ popd
 %{gem_instdir}/spec
 
 %changelog
+* Fri May 20 2016 Athos Ribeiro - 0.13-5
+- Bump release for rebuild in order to fix checksum problems
+
 * Fri May 20 2016 Athos Ribeiro - 0.13-4
 - Install manpages
 
