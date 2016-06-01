@@ -2,12 +2,14 @@
 
 Name: rubygem-%{gem_name}
 Version: 0.13
-Release: 5%{?dist}
+Release: 6%{?dist}
 Summary: serverless configuration management tool for chef
 Group: Development/Languages
 License: MIT
 URL: https://gitlab.com/terceiro/chake
 Source0: https://rubygems.org/gems/%{gem_name}-%{version}.gem
+# These font packages are needed in order to avoid replication in documentation
+# fonts for rdoc
 BuildRequires: ruby(release)
 BuildRequires: rubygems-devel
 BuildRequires: ruby
@@ -28,6 +30,8 @@ hosts.
 Summary: Documentation for %{name}
 Group: Documentation
 Requires: %{name} = %{version}-%{release}
+Requires: lato-fonts
+Requires: adobe-source-code-pro-fonts
 BuildArch: noarch
 
 %description doc
@@ -48,9 +52,14 @@ gem build %{gem_name}.gemspec
 # by default, so that we can move it into the buildroot in %%install
 %gem_install
 
-#rake -f man/Rakefile
-sed -f .%{gem_instdir}/man/readme2man.sed README.md > .%{gem_instdir}/man/chake.adoc || (rm -f .%{gem_instdir}/man/chake.adoc; false)
-asciidoctor --backend manpage --out-file .%{gem_instdir}/man/chake.1 .%{gem_instdir}/man/chake.adoc
+sed -f .%{gem_instdir}/man/readme2man.sed README.md > \
+	.%{gem_instdir}/man/chake.adoc || \
+	(rm -f .%{gem_instdir}/man/chake.adoc; false)
+asciidoctor --backend manpage --out-file .%{gem_instdir}/man/chake.1 \
+	.%{gem_instdir}/man/chake.adoc
+
+# Remove font files
+rm .%{gem_docdir}/rdoc/fonts/*.ttf
 
 %install
 mkdir -p %{buildroot}%{gem_dir}
@@ -63,6 +72,16 @@ cp -pa .%{_bindir}/* \
 
 mkdir -p %{buildroot}%{_mandir}/man1
 mv %{buildroot}%{gem_instdir}/man/chake.1 %{buildroot}%{_mandir}/man1
+
+# Create proper links for fonts
+ln -s %{_datadir}/fonts/lato/Lato-{Light,LightItalic,Regular}.ttf \
+	%{buildroot}%{gem_docdir}/rdoc/fonts/
+ln -s %{_datadir}/fonts/lato/Lato-Italic.ttf \
+	%{buildroot}%{gem_docdir}/rdoc/fonts/Lato-RegularItalic.ttf
+ln -s %{_datadir}/fonts/adobe-source-code-pro/SourceCodePro-Bold.otf \
+	%{buildroot}%{gem_docdir}/rdoc/fonts/SourceCodePro-Bold.ttf
+ln -s %{_datadir}/fonts/adobe-source-code-pro/SourceCodePro-Regular.otf \
+	%{buildroot}%{gem_docdir}/rdoc/fonts/SourceCodePro-Regular.ttf
 
 # Run the test suite
 %check
@@ -95,7 +114,10 @@ popd
 %{gem_instdir}/spec
 
 %changelog
-* Fri May 20 2016 Athos Ribeiro - 0.13-5
+* Tue May 31 2016 Athos Ribeiro - 0.13-6
+- Link fonts from proper packages to avoid replication
+
+* Tue May 31 2016 Athos Ribeiro - 0.13-5
 - Bump release for rebuild in order to fix checksum problems
 
 * Fri May 20 2016 Athos Ribeiro - 0.13-4
