@@ -2,14 +2,12 @@
 
 Name: rubygem-%{gem_name}
 Version: 0.13
-Release: 6%{?dist}
+Release: 7%{?dist}
 Summary: serverless configuration management tool for chef
 Group: Development/Languages
 License: MIT
 URL: https://gitlab.com/terceiro/chake
 Source0: https://rubygems.org/gems/%{gem_name}-%{version}.gem
-# These font packages are needed in order to avoid replication in documentation
-# fonts for rdoc
 BuildRequires: ruby(release)
 BuildRequires: rubygems-devel
 BuildRequires: ruby
@@ -30,8 +28,6 @@ hosts.
 Summary: Documentation for %{name}
 Group: Documentation
 Requires: %{name} = %{version}-%{release}
-Requires: lato-fonts
-Requires: adobe-source-code-pro-fonts
 BuildArch: noarch
 
 %description doc
@@ -53,13 +49,10 @@ gem build %{gem_name}.gemspec
 %gem_install
 
 sed -f .%{gem_instdir}/man/readme2man.sed README.md > \
-	.%{gem_instdir}/man/chake.adoc || \
-	(rm -f .%{gem_instdir}/man/chake.adoc; false)
+  .%{gem_instdir}/man/chake.adoc || \
+  (rm -f .%{gem_instdir}/man/chake.adoc; false)
 asciidoctor --backend manpage --out-file .%{gem_instdir}/man/chake.1 \
-	.%{gem_instdir}/man/chake.adoc
-
-# Remove font files
-rm .%{gem_docdir}/rdoc/fonts/*.ttf
+  .%{gem_instdir}/man/chake.adoc
 
 %install
 mkdir -p %{buildroot}%{gem_dir}
@@ -72,16 +65,6 @@ cp -pa .%{_bindir}/* \
 
 mkdir -p %{buildroot}%{_mandir}/man1
 mv %{buildroot}%{gem_instdir}/man/chake.1 %{buildroot}%{_mandir}/man1
-
-# Create proper links for fonts
-ln -s %{_datadir}/fonts/lato/Lato-{Light,LightItalic,Regular}.ttf \
-	%{buildroot}%{gem_docdir}/rdoc/fonts/
-ln -s %{_datadir}/fonts/lato/Lato-Italic.ttf \
-	%{buildroot}%{gem_docdir}/rdoc/fonts/Lato-RegularItalic.ttf
-ln -s %{_datadir}/fonts/adobe-source-code-pro/SourceCodePro-Bold.otf \
-	%{buildroot}%{gem_docdir}/rdoc/fonts/SourceCodePro-Bold.ttf
-ln -s %{_datadir}/fonts/adobe-source-code-pro/SourceCodePro-Regular.otf \
-	%{buildroot}%{gem_docdir}/rdoc/fonts/SourceCodePro-Regular.ttf
 
 # Run the test suite
 %check
@@ -114,6 +97,9 @@ popd
 %{gem_instdir}/spec
 
 %changelog
+* Fri Jul 1 2016 Athos Ribeiro - 0.13-7
+- Remove links for fonts since we want a solution for all rubygem packages
+
 * Tue May 31 2016 Athos Ribeiro - 0.13-6
 - Link fonts from proper packages to avoid replication
 
